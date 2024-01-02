@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-import sys
+import sys, json
+from starlette.websockets import WebSocket
 from collections import namedtuple
 from collections.abc import Mapping, Sequence
 from types import TracebackType
@@ -249,3 +250,88 @@ class ContextProviderType(ComponentType, Protocol[_Type]):
     @property
     def value(self) -> _Type:
         "Current context value"
+class LocalStorageEventMessage(TypedDict):
+    """Message describing an event containing localStorage"""
+    
+    type: Literal["sync-local-storage"]
+    """The type of message"""
+    storage: dict
+    """A dictionary containing localStorage items"""
+
+class SessionStorageEventMessage(TypedDict):
+    """Message describing an event containing sessionStorage"""
+
+    type: Literal["sync-session-storage"]
+    """Message describing an event containing localStorage"""
+    storage: dict
+    """A dictionary containing localStorage items"""
+
+class LocalStorage():
+    _socket: WebSocket
+    storage: dict
+    
+    def __init__(self, sock):
+        self._socket = sock
+        self.storage = {}
+    
+    def _sync(self, sto):
+        self.storage = sto
+
+    async def _sync_client(self):
+        await self._socket.send_text(
+            json.dumps(
+                {
+                    "type": "sync-local-storage",
+                    "storage": self.storage
+                }
+            )
+        )
+
+    def get_item(
+        self,
+        key: str
+    ):
+        return self.storage.get(key)
+
+    async def set_item(
+        self,
+        key: str,
+        value: str
+    ):
+        self.storage[key] = value
+        await self._sync_client()
+
+class SessionStorage():
+    _socket: WebSocket
+    storage: dict
+    
+    def __init__(self, sock):
+        self._socket = sock
+        self.storage = {}
+    
+    def _sync(self, sto):
+        self.storage = sto
+
+    async def _sync_client(self):
+        await self._socket.send_text(
+            json.dumps(
+                {
+                    "type": "sync-session-storage",
+                    "storage": self.storage
+                }
+            )
+        )
+
+    def get_item(
+        self,
+        key: str
+    ):
+        return self.storage.get(key)
+
+    async def set_item(
+        self,
+        key: str,
+        value: str
+    ):
+        self.storage[key] = value
+        await self._sync_client()

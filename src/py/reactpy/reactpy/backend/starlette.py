@@ -30,7 +30,7 @@ from reactpy.backend.types import Connection, Location
 from reactpy.config import REACTPY_WEB_MODULES_DIR
 from reactpy.core.layout import Layout
 from reactpy.core.serve import RecvCoroutine, SendCoroutine, serve_layout
-from reactpy.core.types import RootComponentConstructor
+from reactpy.core.types import RootComponentConstructor, LocalStorage, SessionStorage
 
 logger = logging.getLogger(__name__)
 
@@ -145,6 +145,8 @@ def _setup_single_view_dispatcher_route(
         pathname = "/" + socket.scope["path_params"].get("path", "")
         pathname = pathname[len(options.url_prefix) :] or "/"
         search = socket.scope["query_string"].decode()
+        local_storage_obj = LocalStorage(sock=socket)
+        session_storage_obj = SessionStorage(sock=socket)
 
         try:
             await serve_layout(
@@ -154,10 +156,14 @@ def _setup_single_view_dispatcher_route(
                         value=Connection(
                             scope=socket.scope,
                             location=Location(pathname, f"?{search}" if search else ""),
+                            local_storage=local_storage_obj,
+                            session_storage=session_storage_obj,
                             carrier=socket,
                         ),
                     )
                 ),
+                local_storage_obj,
+                session_storage_obj,
                 send,
                 recv,
             )

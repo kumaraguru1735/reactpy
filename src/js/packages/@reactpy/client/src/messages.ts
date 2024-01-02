@@ -12,6 +12,16 @@ export type LayoutEventMessage = {
   data: any;
 };
 
-export type IncomingMessage = LayoutUpdateMessage;
-export type OutgoingMessage = LayoutEventMessage;
+export type LocalStorageUpdateMessage = {
+  type: "sync-local-storage",
+  storage: any;
+}
+
+export type SessionStorageUpdateMessage = {
+  type: "sync-session-storage",
+  storage: any;
+}
+
+export type IncomingMessage = LayoutUpdateMessage | LocalStorageUpdateMessage | SessionStorageUpdateMessage;
+export type OutgoingMessage = LayoutEventMessage | LocalStorageUpdateMessage | SessionStorageUpdateMessage;
 export type Message = IncomingMessage | OutgoingMessage;
