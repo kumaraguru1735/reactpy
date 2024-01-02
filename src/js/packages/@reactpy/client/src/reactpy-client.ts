@@ -231,7 +231,7 @@ function createReconnectingWebSocket(
       socket.current?.send(
         JSON.stringify(
           {
-            "type": "sync-local-storage",
+            "type": "sync-session-storage",
             "storage": _sessionStorage
           }
         )
