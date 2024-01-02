@@ -5,7 +5,7 @@
   "types": "src/dist/index.d.ts",
   "description": "A client application for ReactPy implemented in React",
   "dependencies": {
-    "@reactpy/client": "^0.2.0",
+    "@reactpy/client": "0.3.2",
     "preact": "^10.7.0"
   },
   "devDependencies": {
