@@ -124,9 +124,16 @@ dependencies = [
 types = "mypy --strict reactpy"
 all = ["types"]
 
-[[tool.hatch.build.hooks.build-scripts.scripts]]
-work_dir = "../../js"
+[tool.hatch.build.targets.sdist]
+only-include = ["js", "reactpy"]
+
+[tool.hatch.build.targets.wheel.force-include]
+"reactpy/_static" = "reactpy/_static"  # bypass .gitignor
+
+[[tool.hatch.build.targets.wheel.hooks.build-scripts.scripts]]
+work_dir = "js"
 out_dir = "reactpy/_static"
+
 commands = [
   "npm ci",
   "npm run build"
